@@ -1,5 +1,6 @@
 global:
   scrape_interval: 5s # 메트릭 수집 주기
+  evaluation_interval: 5s # 평가 주기
 
 scrape_configs:
   # Prometheus 자체 모니터링
@@ -12,10 +13,13 @@ scrape_configs:
   - job_name: "OrderSystem"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ['host.docker.internal:8080']
+      - targets:
+          - "host.docker.internal:8080" # Spring Boot 애플리케이션이 동작하는 호스트와 포트
 
-  # MySQL Exporter 모니터링
-  - job_name: "mysql-exporter"
-    scrape_interval:
+  - job_name: "mysql-master-exporter"
     static_configs:
       - targets: ['host.docker.internal:9104']
+
+  - job_name: "mysql-slave-exporter"
+    static_configs:
+      - targets: ['host.docker.internal:9105']

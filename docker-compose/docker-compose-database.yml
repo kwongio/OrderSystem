@@ -1,32 +1,64 @@
-version: '3.8'
+version: "3.8"
+
 services:
-  mysql:
-    image: 'mysql:latest'
-    container_name: 'mysql-container'
+  mysql-master:
+    image: mysql:8.0
+    container_name: mysql-master
+    restart: always
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=row
+      --default-authentication-plugin=mysql_native_password
     environment:
-      - 'MYSQL_ROOT_PASSWORD=1234'       # 루트 계정 암호
-      - 'MYSQL_DATABASE=OrderSystem'    # 기본 데이터베이스
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: OrderSystem
     ports:
-      - '3306:3306'                      # 기본 DB를 위한 포트
+      - 3306:3306
 
-  # 테스트용 MySQL 설정
-  mysql-test:
-    image: 'mysql:latest'
-    container_name: 'mysql-test-container'
-    environment:
-      - 'MYSQL_ROOT_PASSWORD=1234'       # 루트 계정 암호
-      - 'MYSQL_DATABASE=OrderSystemTest' # 테스트 데이터베이스
-    ports:
-      - '3307:3306'                      # 테스트 DB를 위한 포트
-
-
-  mysql-exporter:
-    container_name: mysql-exporter
-    image: prom/mysqld-exporter
-    command:
-      - "--mysqld.username=root:1234"
-      - "--mysqld.address=mysql:3306"
-    ports:
-      - "9104:9104"                       # MySQL Exporter 포트
+  mysql-slave:
+    image: mysql:8.0
+    container_name: mysql-slave
+    restart: always
     depends_on:
-      - mysql
+      - mysql-master
+    command: >
+      --server-id=2
+      --log-bin=mysql-bin
+      --relay-log=mysql-relay-bin
+      --log-slave-updates=1
+      --read-only=1
+      --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: OrderSystem
+    ports:
+      - 3307:3306
+
+  mysql-master-exporter:
+    container_name: mysql-master-exporter
+    image: prom/mysqld-exporter:latest
+    restart: always
+    command:
+      - "--mysqld.address=mysql-master:3306"
+      - "--mysqld.username=root:1234"
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql-master
+
+  mysql-slave-exporter:
+      container_name: mysql-slave-exporter
+      image: prom/mysqld-exporter:latest
+      restart: always
+      command:
+        - "--mysqld.address=mysql-slave:3306"
+        - "--mysqld.username=root:1234"
+      ports:
+        - "9105:9104"
+      depends_on:
+        - mysql-slave
+
+networks:
+  default:
+    driver: bridge
