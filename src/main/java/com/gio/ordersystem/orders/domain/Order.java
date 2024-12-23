@@ -8,7 +8,6 @@ import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,19 +24,19 @@ public class Order {
 
     @Column(nullable = false, columnDefinition = "BIGINT NOT NULL")
     @Comment("사용자 ID")
-    private Long userId;
+    private long userId;
 
     @Column(nullable = false, columnDefinition = "BIGINT NOT NULL")
     @Comment("상품 ID")
-    private Long productId;
+    private long productId;
 
     @Column(nullable = false, columnDefinition = "INT NOT NULL CHECK (quantity > 0)")
     @Comment("주문 수량 (0 이상)")
-    private Integer quantity;
+    private int quantity;
 
-    @Column(nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10, 2) NOT NULL CHECK (total_price >= 0)")
-    @Comment("총 주문 금액 (0 이상)")
-    private BigDecimal totalPrice;
+    @Column(nullable = false, columnDefinition = "BIGINT NOT NULL CHECK (total_price >= 0)")
+    @Comment("총 주문 금액 (0 이상, 정수)")
+    private long totalPrice;
 
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @Comment("주문 날짜")
@@ -45,7 +44,7 @@ public class Order {
     private LocalDateTime orderDate;
 
     @Builder
-    public Order(Long id, Long userId, Long productId, Integer quantity, BigDecimal totalPrice, LocalDateTime orderDate) {
+    public Order(Long id, Long userId, Long productId, Integer quantity, Long totalPrice, LocalDateTime orderDate) {
         this.id = id;
         this.userId = userId;
         this.productId = productId;

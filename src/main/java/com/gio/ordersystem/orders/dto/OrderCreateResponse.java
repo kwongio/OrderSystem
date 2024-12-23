@@ -3,17 +3,16 @@ package com.gio.ordersystem.orders.dto;
 import com.gio.ordersystem.orders.domain.Order;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 public class OrderCreateResponse {
 
-    private Long id;
-    private Long userId;
-    private Long productId;
-    private Integer quantity;
-    private BigDecimal totalPrice;
+    private long id;
+    private long userId;
+    private long productId;
+    private int quantity;
+    private long totalPrice;
     private LocalDateTime orderDate;
 
     public static OrderCreateResponse from(Order order) {

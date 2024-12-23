@@ -22,20 +22,19 @@ public class OrderController implements OrderSwaggerController {
 
     @PostMapping
     public ResponseEntity<OrderCreateResponse> createOrder(@Valid @RequestBody OrderCreateRequest request) {
-        Order order = orderService.createOrder(request.toEntity());
+        Order order = orderService.create(request.toEntity());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(OrderCreateResponse.from(order));
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderQueryResponse> getOrder(@PathVariable Long orderId) {
-        Order order = orderService.getOrderById(orderId).orElseThrow(() -> new RuntimeException("Order not found."));
-        return ResponseEntity.ok(OrderQueryResponse.from(order));
+        return ResponseEntity.ok(OrderQueryResponse.from(orderService.findById(orderId)));
     }
 
     @GetMapping
     public ResponseEntity<List<OrderQueryResponse>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
+        List<Order> orders = orderService.findAll();
         return ResponseEntity.ok(orders.stream()
                 .map(OrderQueryResponse::from)
                 .toList());
@@ -43,7 +42,7 @@ public class OrderController implements OrderSwaggerController {
 
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
-        orderService.deleteOrder(orderId);
+        orderService.deleteById(orderId);
         return ResponseEntity.noContent().build();
     }
 }

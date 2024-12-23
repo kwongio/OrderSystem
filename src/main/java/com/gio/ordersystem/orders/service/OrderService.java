@@ -1,31 +1,32 @@
 package com.gio.ordersystem.orders.service;
 
+import com.gio.ordersystem.exception.CustomException;
+import com.gio.ordersystem.exception.ExceptionCode;
 import com.gio.ordersystem.orders.domain.Order;
 import com.gio.ordersystem.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
 
-    public Order createOrder(Order order) {
+    public Order create(Order order) {
         return orderRepository.save(order);
     }
 
-    public Optional<Order> getOrderById(Long id) {
-        return orderRepository.findById(id);
+    public Order findById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new CustomException(ExceptionCode.ORDER_NOT_FOUND));
     }
 
-    public List<Order> getAllOrders() {
+    public List<Order> findAll() {
         return orderRepository.findAll();
     }
 
-    public void deleteOrder(Long id) {
+    public void deleteById(Long id) {
         orderRepository.deleteById(id);
     }
 }
