@@ -1,3 +1,14 @@
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+    threads:
+      max: 200
+      min-spare: 10
+      max-queue-capacity: 2147483647
+    max-connections: 8192
+
+
 spring:
   datasource:
     master:
@@ -6,12 +17,17 @@ spring:
         jdbc-url: jdbc:mysql://localhost:3306/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
         username: root
         password: 1234
+        maximum-pool-size: 50
+        minimum-idle: 10
     slave:
       hikari:
         driver-class-name: com.mysql.cj.jdbc.Driver
         jdbc-url: jdbc:mysql://localhost:3307/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
         username: root
         password: 1234
+        maximum-pool-size: 50
+        minimum-idle: 10
+
 
   jpa:
     hibernate:
@@ -61,10 +77,6 @@ springdoc:
 
 
 
-server:
-  tomcat:
-    mbeanregistry:
-      enabled: true
 
 # Prometheus와 Grafana를 사용한 Spring Boot 애플리케이션 모니터링 설정
 management:
