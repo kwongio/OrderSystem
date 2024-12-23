@@ -12,21 +12,19 @@ server:
 spring:
   datasource:
     master:
-      hikari:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3306/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
-        username: root
-        password: 1234
-        maximum-pool-size: 50
-        minimum-idle: 10
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3306/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
+      username: root
+      password: 1234
+      maximum-pool-size: 50
+      minimum-idle: 10
     slave:
-      hikari:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://localhost:3307/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
-        username: root
-        password: 1234
-        maximum-pool-size: 50
-        minimum-idle: 10
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3307/OrderSystem?serverTimezone=UTC&characterEncoding=UTF-8
+      username: root
+      password: 1234
+      maximum-pool-size: 50
+      minimum-idle: 10
 
 
   jpa:
@@ -54,7 +52,7 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
-    org.example.file_test: debug
+    org.hibernate.type.descriptor.sql: trace
 
 springdoc:
   packages-to-scan: com.gio.ordersystem
