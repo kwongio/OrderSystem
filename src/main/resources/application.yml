@@ -5,21 +5,27 @@ spring:
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         default_batch_fetch_size: 1000
         use_sql_comments: true
         format_sql: true
-    #        show_sql: true ?? ?? SQL ?? ??
+    #        show_sql: true 이거 키면 SQL 두번 나옴
     open-in-view: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
 
-  sql:
-    init:
-      mode: always
+  data:
+    web:
+      pageable:
+        default-page-size: 20 # 페이지 크기를 20으로 설정
+        one-indexed-parameters: true # 페이지 번호를 1부터 시작하도록 설정
+#  sql:
+#    init:
+#      mode: always
 
 logging:
   level:
@@ -38,9 +44,34 @@ springdoc:
     disabled: true
 
   swagger-ui:
-    path: /ui
-    operations-sorter: method
-    display-request-duration: true # ??? ?? ??? UI?? ??
-    persist-authorization: true # ?? ??? ????? ??
-    deep-linking: true # URL ??? ?? API ?? ???? ???
-    doc-expansion: list # ?? ?? ?? ??: ??? ?? (?? none, full ??)
+    path: /ui # Swagger UI에 접근할 경로 (기본값: /swagger-ui.html)
+    operations-sorter: method # API 문서를 HTTP 메서드(GET, POST 등) 순으로 정렬
+    display-request-duration: true # 요청의 처리 시간을 UI에서 표시
+    persist-authorization: true # 인증 정보를 유지하도록 설정
+    deep-linking: true # URL 경로를 통한 API 문서 바로가기 활성화
+    doc-expansion: list # 기본 문서 열람 방식: 리스트 형태 (또는 none, full 가능)
+
+
+
+
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+# Prometheus와 Grafana를 사용한 Spring Boot 애플리케이션 모니터링 설정
+management:
+  #  server: 내부망에서만 접근 설정
+  #    port:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 모든 Actuator 엔드포인트를 노출
+  #        include: prometheus # 모든 Actuator 엔드포인트를 노출
+  endpoint:
+    prometheus:
+      access: unrestricted # Prometheus 메트릭 엔드포인트에 접근 허용 (기본값)
+  prometheus:
+    metrics:
+      export:
+        enabled: true # Prometheus 메트릭 수출을 활성화
