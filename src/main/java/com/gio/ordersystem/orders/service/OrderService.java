@@ -22,8 +22,8 @@ public class OrderService {
         return orderRepository.findById(id).orElseThrow(() -> new CustomException(ExceptionCode.ORDER_NOT_FOUND));
     }
 
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public List<Order> getOrdersAfter(Long lastId, int pageSize) {
+        return orderRepository.findNextOrders(lastId, pageSize);
     }
 
     public void deleteById(Long id) {

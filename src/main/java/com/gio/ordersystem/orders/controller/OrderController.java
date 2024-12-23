@@ -28,20 +28,24 @@ public class OrderController implements OrderSwaggerController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderQueryResponse> getOrder(@PathVariable Long orderId) {
+    public ResponseEntity<OrderQueryResponse> getOrder(@PathVariable("orderId") Long orderId) {
         return ResponseEntity.ok(OrderQueryResponse.from(orderService.findById(orderId)));
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderQueryResponse>> getAllOrders() {
-        List<Order> orders = orderService.findAll();
-        return ResponseEntity.ok(orders.stream()
+    public ResponseEntity<List<OrderQueryResponse>> getOrders(
+            @RequestParam(defaultValue = "1", name = "lastId") long lastId,
+            @RequestParam(defaultValue = "20",  name = "pageSize") int pageSize
+    ) {
+        List<Order> orders = orderService.getOrdersAfter(lastId, pageSize);
+        List<OrderQueryResponse> response = orders.stream()
                 .map(OrderQueryResponse::from)
-                .toList());
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
+    public ResponseEntity<Void> deleteOrder(@PathVariable("orderId") Long orderId) {
         orderService.deleteById(orderId);
         return ResponseEntity.noContent().build();
     }
