@@ -18,3 +18,15 @@ services:
       - 'MYSQL_DATABASE=OrderSystemTest' # 테스트 데이터베이스
     ports:
       - '3307:3306'                      # 테스트 DB를 위한 포트
+
+
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=root:1234"
+      - "--mysqld.address=mysql:3306"
+    ports:
+      - "9104:9104"                       # MySQL Exporter 포트
+    depends_on:
+      - mysql
