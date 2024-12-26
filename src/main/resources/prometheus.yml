@@ -28,6 +28,10 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:9121']
 
-  - job_name: 'redis-slave'
+  - job_name: 'redis-slave-1'
     static_configs:
       - targets: ['host.docker.internal:9122']
+
+  - job_name: 'redis-slave-2'
+    static_configs:
+      - targets: ['host.docker.internal:9123']
