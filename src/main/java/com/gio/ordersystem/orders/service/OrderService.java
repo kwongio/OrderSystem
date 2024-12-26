@@ -3,6 +3,8 @@ package com.gio.ordersystem.orders.service;
 import com.gio.ordersystem.exception.CustomException;
 import com.gio.ordersystem.exception.ExceptionCode;
 import com.gio.ordersystem.orders.domain.Order;
+import com.gio.ordersystem.orders.domain.OrderDocument;
+import com.gio.ordersystem.orders.repository.OrderDocumentRepository;
 import com.gio.ordersystem.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,13 +19,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final OrderDocumentRepository orderDocumentRepository;
 
     @Transactional
     @CachePut(value = "orders", key = "#result.id")
     public Order create(Order order) {
-        return orderRepository.save(order);
+        Order saveOrder = orderRepository.save(order);
+        OrderDocument orderDocument = mapToDocument(saveOrder);
+        orderDocumentRepository.save(orderDocument);
+        return saveOrder;
     }
-
+    private OrderDocument mapToDocument(Order order) {
+        return OrderDocument.builder()
+                .id(order.getId().toString())
+                .userId(order.getUserId())
+                .productId(order.getProductId())
+                .quantity(order.getQuantity())
+                .totalPrice(order.getTotalPrice())
+                .orderDate(order.getOrderDate())
+                .build();
+    }
     @Transactional(readOnly = true)
     @Cacheable(value = "orders", key = "#id") // 조회 시 캐시 사용
     public Order findById(Long id) {
@@ -45,4 +60,6 @@ public class OrderService {
         }
         orderRepository.deleteById(id);
     }
+
+
 }
