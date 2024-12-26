@@ -1,19 +1,24 @@
 <configuration>
-    <!-- Spring property를 사용해 서버 이름을 로깅에 포함 -->
+    <!-- Spring property를 사용해 서버 이름 및 애플리케이션 이름 로깅 -->
     <springProperty scope="context" name="server-name" source="server.name"/>
+    <springProperty scope="context" name="application-name" source="spring.application.name"/>
+
+    <!-- 콘솔 로그 설정 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <!-- 로그 패턴 설정: 시간, 레벨, traceId, 간결한 클래스명, 메시지 -->
+            <!-- 로그 패턴 설정: 시간, 레벨, traceId, spanId, 클래스명, 메시지 -->
             <pattern>
-                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{20}) traceId=%boldYellow(%X{traceId}) : %msg %n
+                [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%highlight(%-5level)] [%cyan(%logger{20})] [traceId=%boldYellow(%X{traceId:-})] [spanId=%boldGreen(%X{spanId:-})] [%class:%method:%line] : %msg %n
             </pattern>
         </encoder>
     </appender>
+
     <!-- Logstash로 JSON 형식의 로그 전송 -->
     <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
         <destination>localhost:5000</destination> <!-- Logstash의 입력 포트 -->
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
+                <!-- JSON 구조 설정 -->
                 <pattern>
                     <pattern>
                         {
@@ -25,15 +30,20 @@
                         "method": "%method",
                         "line": "%line",
                         "message": "%message",
-                        "server-name": "${server-name}"
+                        "server-name": "${server-name}",
+                        "application-name": "${application-name}",
+                        "traceId": "%X{traceId:-}",
+                        "spanId": "%X{spanId:-}"
                         }
                     </pattern>
                 </pattern>
+                <!-- 호출 정보 제공 -->
+                <caller />
             </providers>
         </encoder>
     </appender>
 
-    <!-- 로그 레벨 설정 및 Logstash로 전송 -->
+    <!-- 로그 레벨 설정 -->
     <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="STASH" />
