@@ -31,6 +31,22 @@ services:
     networks:
       - elastic-net
 
+  logstash:
+    image: 'docker.elastic.co/logstash/logstash:8.10.2'
+    container_name: logstash
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - xpack.monitoring.elasticsearch.hosts=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    ports:
+      - '5044:5044' # Beats input
+      - '5000:5000' # Logstash TCP input
+      - '9600:9600' # Monitoring API
+    networks:
+      - elastic-net
+
 networks:
   elastic-net:
     driver: bridge
