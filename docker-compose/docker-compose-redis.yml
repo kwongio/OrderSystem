@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  redis-master:
+    container_name: redis-master
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - ALLOW_EMPTY_PASSWORD=yes  # 비밀번호 없이 Redis 설정
+    ports:
+      - "6379:6379"
+    networks:
+      - redis-net
+
+  redis-slave-1:
+    container_name: slave-redis
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - ALLOW_EMPTY_PASSWORD=yes  # 비밀번호 없이 Redis 설정
+    ports:
+      - "6380:6379"
+    depends_on:
+      - redis-master
+    networks:
+      - redis-net
+
+  redis-slave-2:
+    container_name: slave-redis-2
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - ALLOW_EMPTY_PASSWORD=yes  # 비밀번호 없이 Redis 설정
+    ports:
+      - "6381:6379"
+    depends_on:
+      - redis-master
+    networks:
+      - redis-net
+
+  redis-sentinel-1:
+    image: 'bitnami/redis-sentinel:latest'
+    container_name: sentinel-1
+    environment:
+      - REDIS_MASTER_SET=mymaster
+      - REDIS_MASTER_HOST=redis-master  # Redis 마스터 호스트 설정
+      - REDIS_MASTER_PORT_NUMBER=6379  # Redis 마스터 포트 설정
+      - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=3000
+      - REDIS_SENTINEL_QUORUM=2
+    depends_on:
+      - redis-master
+      - redis-slave-1
+      - redis-slave-2
+    ports:
+      - "26379:26379"
+    networks:
+      - redis-net
+
+  redis-sentinel-2:
+    image: 'bitnami/redis-sentinel:latest'
+    container_name: sentinel-2
+    environment:
+      - REDIS_MASTER_SET=mymaster
+      - REDIS_MASTER_HOST=redis-master  # Redis 마스터 호스트 설정
+      - REDIS_MASTER_PORT_NUMBER=6379  # Redis 마스터 포트 설정
+      - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=3000
+      - REDIS_SENTINEL_QUORUM=2
+    depends_on:
+      - redis-master
+      - redis-slave-1
+      - redis-slave-2
+    ports:
+      - "26380:26379"
+    networks:
+      - redis-net
+
+  redis-sentinel-3:
+    image: 'bitnami/redis-sentinel:latest'
+    container_name: sentinel-3
+    environment:
+      - REDIS_MASTER_SET=mymaster
+      - REDIS_MASTER_HOST=redis-master  # Redis 마스터 호스트 설정
+      - REDIS_MASTER_PORT_NUMBER=6379  # Redis 마스터 포트 설정
+      - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=3000
+      - REDIS_SENTINEL_QUORUM=2
+    depends_on:
+      - redis-master
+      - redis-slave-1
+      - redis-slave-2
+    ports:
+      - "26381:26379"
+    networks:
+      - redis-net
+
+  redis-exporter-master:
+    image: 'oliver006/redis_exporter:latest'
+    container_name: 'redis-exporter-master'
+    environment:
+      - REDIS_ADDR=redis-master:6379  # Redis Master 컨테이너 주소
+    ports:
+      - '9121:9121'
+    depends_on:
+      - redis-master
+    networks:
+      - redis-net
+
+  redis-exporter-slave-1:
+    image: 'oliver006/redis_exporter:latest'
+    container_name: 'redis-exporter-slave-1'
+    environment:
+      - REDIS_ADDR=slave-redis:6379  # Redis Slave 1 컨테이너 주소
+    ports:
+      - '9122:9121'
+    depends_on:
+      - redis-slave-1
+    networks:
+      - redis-net
+
+  redis-exporter-slave-2:
+    image: 'oliver006/redis_exporter:latest'
+    container_name: 'redis-exporter-slave-2'
+    environment:
+      - REDIS_ADDR=slave-redis-2:6379  # Redis Slave 2 컨테이너 주소
+    ports:
+      - '9123:9121'
+    depends_on:
+      - redis-slave-2
+    networks:
+      - redis-net
+
+networks:
+  redis-net:
+    driver: bridge

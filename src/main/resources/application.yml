@@ -48,8 +48,15 @@ spring:
         default-page-size: 20 # 페이지 크기를 20으로 설정
         one-indexed-parameters: true # 페이지 번호를 1부터 시작하도록 설정
     redis:
-      host: localhost
-      port: 6379
+      password: redispassword
+      sentinel:
+        master: mymaster
+        nodes:
+          - host.docker.internal:26379  # 로컬 머신에서 Redis Sentinel에 접근
+          - host.docker.internal:26380
+          - host.docker.internal:26381
+      lettuce:
+        shutdown-timeout: 200ms
 #  sql:
 #    init:
 #      mode: always
